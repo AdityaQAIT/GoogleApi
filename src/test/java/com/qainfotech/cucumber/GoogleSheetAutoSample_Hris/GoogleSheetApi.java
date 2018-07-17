@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import com.google.api.client.auth.oauth2.Credential;
@@ -33,7 +34,7 @@ public class GoogleSheetApi {
 	     * Global instance of the scopes required by this quickstart.
 	     * If modifying these scopes, delete your previously saved credentials/ folder.
 	     */
-	    private static final List<String> SCOPES = Arrays.asList(SheetsScopes.DRIVE);
+	    private static final List<String> SCOPES = Arrays.asList(SheetsScopes.SPREADSHEETS);
 	    private static final String CLIENT_SECRET_DIR = "client_secret.json";
 	    public Sheets service;
 	    List<List<Object>> values;
@@ -49,7 +50,7 @@ public class GoogleSheetApi {
 	        // Load client secrets.
 	        InputStream in = GoogleSheetApi.class.getResourceAsStream(CLIENT_SECRET_DIR);
 	        GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(in));
-
+            
 	        // Build flow and trigger user authorization request.
 	        GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
 	                HTTP_TRANSPORT, JSON_FACTORY, clientSecrets, SCOPES)
@@ -62,21 +63,23 @@ public class GoogleSheetApi {
 	    
 	    private void GetData() throws Exception{
 	    	 final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
-	         final String range = "A1:F";
+	         final String range = "Valid_Credentials!A1:F";
 	        service = new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
 	                 .setApplicationName(APPLICATION_NAME)
 	                 .build();
 	         ValueRange response = service.spreadsheets().values()
 	                 .get(spreadsheetId, range)
 	                 .execute();
+
 	         values = response.getValues();
+	      
 	    }
 	    
-	    public void Update (String id) throws Exception {
+	    public String Update (String id,String status) throws Exception {
 	    	List<List<Object>> Update_value = new ArrayList<List<Object>>();
 	        List<Object> add; 
 	        add = new ArrayList<Object>();
-	        add.add("Pass");
+	        add.add(status);
 	        Update_value.add(add);
 	        
 	        GetData();
@@ -85,9 +88,12 @@ public class GoogleSheetApi {
 	        ValueRange body = new ValueRange()
 	      	      .setValues(Update_value);
 	      	    UpdateValuesResponse result =service.spreadsheets().values()
-	      	      .update(spreadsheetId, "E"+row, body).setValueInputOption("RAW")
+	      	      .update(spreadsheetId, "Valid_Credentials!E"+row, body).setValueInputOption("RAW")
 	      	      .execute();
+	      	    return status;
 	    }
+	    
+	    
 
 
 		private String FindRow(String id) {

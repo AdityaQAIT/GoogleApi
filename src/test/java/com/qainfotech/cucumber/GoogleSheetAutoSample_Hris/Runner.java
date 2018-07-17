@@ -5,7 +5,8 @@ import cucumber.api.testng.AbstractTestNGCucumberTests;
 
 @CucumberOptions(
         features = "src/test/java/Features",
-        glue = "StepDefination"
+        glue = "StepDefination",
+        monochrome=true
      )
 
 public class Runner extends AbstractTestNGCucumberTests{
